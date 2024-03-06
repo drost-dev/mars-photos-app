@@ -10,13 +10,18 @@ class HomeScreenLoading extends HomeScreenState {
 class HomeScreenLoaded extends HomeScreenState {
   final Nasa data;
   final int imageIndex;
-  HomeScreenLoaded({required this.data, this.imageIndex = 0});
+  final String? listCamera;
+  HomeScreenLoaded({required this.data, this.imageIndex = 0, this.listCamera});
   
   @override
-  List<Object?> get props => [data, imageIndex];
+  List<Object?> get props => [data, imageIndex, listCamera];
 }
 
 class HomeScreenLoadError extends HomeScreenState {
+  final dynamic err;
+
+  HomeScreenLoadError({this.err});
+
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [err];
 }

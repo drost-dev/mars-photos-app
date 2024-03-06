@@ -20,54 +20,64 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      //resizeToAvoidBottomInset: false,
-      appBar: AppBar(
-        title: const Text('Mars Photos'),
-      ),
-      body: BlocBuilder(
-        bloc: _homeScreenBloc,
-        builder: (context, state) {
-          if (state is HomeScreenLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else if (state is HomeScreenLoaded) {
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Image.network(
-                  state.data.photos![state.imageIndex].imgSrc!,
-                ),
-                Container(
-                  margin: const EdgeInsets.only(bottom: 50),
-                  child: Column(
-                    children: [
-                      DropdownButton(
-                        hint: const Text('Choose Camera'),
-                        items: const [
-                          DropdownMenuItem(
-                            value: 1,
-                            child: Text("One"),
+    try {
+      return Scaffold(
+        //resizeToAvoidBottomInset: false,
+        appBar: AppBar(
+          title: const Text('Mars Photos'),
+        ),
+        body: BlocBuilder(
+          bloc: _homeScreenBloc,
+          builder: (context, state) {
+            if (state is HomeScreenLoading) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (state is HomeScreenLoaded) {
+              try {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Image.network(
+                      state.data.photos![state.imageIndex].imgSrc!,
+                    ),
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 50),
+                      child: Column(
+                        children: [
+                          DropdownButton(
+                            hint: const Text('Choose camera'),
+                            items: const [
+                              DropdownMenuItem(
+                                value: "CHEMCAM",
+                                child: Text("Chemistry and Camera Complex"),
+                              ),
+                              DropdownMenuItem(
+                                value: "NAVCAM",
+                                child: Text("Navigation Camera"),
+                              ),
+                              DropdownMenuItem(
+                                value: "FHAZ",
+                                child: Text("Front Hazard Avoidance Camera"),
+                              ),
+                            ],
+                            value: state.listCamera,
+                            onChanged: (value) {
+                              _homeScreenBloc.add(ReloadHomeScreen(
+                                data: state.data,
+                                imgInd: state.imageIndex,
+                                listCamera: value!,
+                                prevCamera: state.listCamera,
+                              ));
+                            },
                           ),
-                          DropdownMenuItem(
-                            value: 2,
-                            child: Text("Two"),
-                          ),
-                          DropdownMenuItem(
-                            value: 3,
-                            child: Text("Three"),
-                          ),
-                        ],
-                        onChanged: (value) {},
-                      ),
-                      Text("""
+                          Text("""
 Rover Name: ${state.data.photos![state.imageIndex].rover!.name},
 Camera Name: ${state.data.photos![state.imageIndex].camera!.fullName},
 Sol: ${state.data.photos![state.imageIndex].sol}
 №${state.imageIndex + 1} of ${state.data.photos!.length}"""),
-                      /*TextField(
+                          /*TextField(
                         onSubmitted: (text) {
                           _homeScreenBloc.add(LoadHomeScreen(
                               imgInd: int.parse(text) - 1, data: state.data));
@@ -75,55 +85,99 @@ Sol: ${state.data.photos![state.imageIndex].sol}
                         keyboardType: TextInputType.number,
                         maxLength: state.data.photos!.lastIndexOf(state.data.photos!.last).toString().length,
                       ),*/
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          IconButton(
-                            onPressed: state.imageIndex > 0
-                                ? () => {
-                                      _homeScreenBloc.add(LoadHomeScreen(
-                                          imgInd: state.imageIndex - 1,
-                                          data: state.data))
-                                    }
-                                : null,
-                            icon: const Icon(Icons.navigate_before),
-                          ),
-                          IconButton(
-                            onPressed:
-                                state.imageIndex < state.data.photos!.length - 1
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              IconButton(
+                                onPressed: state.imageIndex > 0
                                     ? () => {
-                                          _homeScreenBloc.add(LoadHomeScreen(
-                                              imgInd: state.imageIndex + 1,
-                                              data: state.data))
+                                          _homeScreenBloc.add(ReloadHomeScreen(
+                                            imgInd: state.imageIndex - 1,
+                                            data: state.data,
+                                            listCamera: state.listCamera,
+                                            prevCamera: state.listCamera,
+                                          ))
                                         }
                                     : null,
-                            icon: const Icon(Icons.navigate_next),
+                                icon: const Icon(Icons.navigate_before),
+                              ),
+                              IconButton(
+                                onPressed: state.imageIndex <
+                                        state.data.photos!.length - 1
+                                    ? () => {
+                                          _homeScreenBloc.add(ReloadHomeScreen(
+                                            imgInd: state.imageIndex + 1,
+                                            data: state.data,
+                                            listCamera: state.listCamera,
+                                            prevCamera: state.listCamera,
+                                          ))
+                                        }
+                                    : null,
+                                icon: const Icon(Icons.navigate_next),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
+                );
+              } catch (e) {
+                return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                        "Error while loading photos!\n${e.toString()}"),
+                    TextButton(
+                      onPressed: () {
+                        _homeScreenBloc.add(LoadHomeScreen());
+                      },
+                      child: const Text('Reload...'),
+                    )
+                  ],
                 ),
-              ],
-            );
-          } else {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('Error while loading photos!'),
-                  TextButton(
-                    onPressed: () {
-                      _homeScreenBloc.add(LoadHomeScreen());
-                    },
-                    child: const Text('Reload...'),
-                  )
-                ],
-              ),
-            );
-          }
-        },
-      ),
-    );
+              );
+              }
+            } else if (state is HomeScreenLoadError) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                        "Error while loading photos!\n${state.err.toString()}"),
+                    TextButton(
+                      onPressed: () {
+                        _homeScreenBloc.add(LoadHomeScreen());
+                      },
+                      child: const Text('Reload...'),
+                    )
+                  ],
+                ),
+              );
+            } else {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Error!"),
+                    TextButton(
+                      onPressed: () {
+                        _homeScreenBloc.add(LoadHomeScreen());
+                      },
+                      child: const Text('Reload...'),
+                    )
+                  ],
+                ),
+              );
+            }
+          },
+        ),
+      );
+    } catch (e) {
+      return Center(
+        child: Text(e.toString()),
+      );
+    }
   }
 }
