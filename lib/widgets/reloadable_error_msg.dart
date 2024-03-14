@@ -11,7 +11,6 @@ class ReloadableErrorMessage extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
-            //"Error while loading photos!\nProbably can't get data from NASA (try to check your network connection)\n${state.err.toString()}"),
             errorMsg ?? "Unhandled error",
             ),
         TextButton(

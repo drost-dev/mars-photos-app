@@ -25,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return Scaffold(
         //resizeToAvoidBottomInset: false,
         appBar: AppBar(
+          foregroundColor: Theme.of(context).primaryColor,
           title: const Text('Mars Photos'),
         ),
         body: BlocBuilder(
@@ -38,23 +39,28 @@ class _HomeScreenState extends State<HomeScreen> {
             } else if (state is HomeScreenLoaded) {
               //loaded state
               return Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Image.network(
-                    state.data.photos![state.imageIndex].imgSrc!,
-                    errorBuilder: (context, error, stackTrace) {
-                      return ReloadableErrorMessage(
-                        reloadFunc: () {
-                          _homeScreenBloc.add(LoadHomeScreen());
+                  Expanded(
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 15),
+                      child: Image.network(
+                        state.data.photos![state.imageIndex].imgSrc!,
+                        errorBuilder: (context, error, stackTrace) {
+                          return ReloadableErrorMessage(
+                            reloadFunc: () {
+                              _homeScreenBloc.add(LoadHomeScreen());
+                            },
+                            errorMsg:
+                                "Error while loading photo!\nProbably some troubles with your network connection.\n${error.toString()}",
+                          );
                         },
-                        errorMsg:
-                            "Error while loading photo!\nProbably some troubles with your network connection.\n${error.toString()}",
-                      );
-                    },
+                      ),
+                    ),
                   ),
                   Container(
-                    margin: const EdgeInsets.only(bottom: 50),
+                    margin: const EdgeInsets.only(bottom: 30),
                     child: Column(
                       children: [
                         DropdownButton(
